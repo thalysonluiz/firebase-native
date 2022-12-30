@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Text,
   Link,
@@ -10,17 +10,21 @@ import {
   NativeBaseProvider,
   extendTheme,
   VStack,
-  Box,
   FormControl,
   WarningOutlineIcon,
   Input,
   Pressable,
   FlatList,
-  Avatar,
-  Spacer,
 } from "native-base";
-import { Platform } from "react-native";
-import { UsuarioItem } from "./components/UsuarioItem";
+
+import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+
+import { firebase } from "./src/firebase/connection";
+
+import { UsuarioItem } from "./src/components/UsuarioItem";
+import { Loading } from "./src/components/Loading";
+
+const auth = getAuth(firebase);
 
 // Define the config
 const config = {
@@ -64,6 +68,23 @@ const data = [{
 }];
 
 export default function App() {
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+
+  function cadastrar() {
+    createUserWithEmailAndPassword(auth, email, senha)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        console.log(user);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        // ..
+      });
+  }
+
   return (
     <NativeBaseProvider>
       <Center
@@ -80,6 +101,7 @@ export default function App() {
               variant="rounded"
               placeholder="Email"
               borderColor="coolGray.600"
+              onChangeText={(texto) => setEmail(texto)}
             />
           </FormControl>
           <FormControl w="90%" maxW="300px">
@@ -89,10 +111,11 @@ export default function App() {
               variant="rounded"
               placeholder="Senha"
               borderColor="coolGray.600"
+              onChangeText={(texto) => setSenha(texto)}
             />
           </FormControl>
           <Pressable
-            onPress={() => console.log("I'm Pressed")}
+            onPress={cadastrar}
             rounded="8"
             overflow="hidden"
             borderWidth="1"
@@ -109,6 +132,7 @@ export default function App() {
               Cadastrar
             </Text>
           </Pressable>
+          <Loading />
           <FlatList data={data} renderItem={({
             item
           }) => <UsuarioItem item={item} />} keyExtractor={item => item.id} />
