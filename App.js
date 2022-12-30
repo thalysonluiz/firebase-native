@@ -167,8 +167,6 @@ export default function App() {
             </Text>
           </Pressable>
           <Text>Usuário: {user?.email}</Text>
-          <Loading />
-
 
         </VStack>
       </Center>
