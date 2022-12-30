@@ -70,6 +70,7 @@ const data = [{
 export default function App() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+  const [user, setUser] = useState(null);
 
   async function cadastrar() {
     await createUserWithEmailAndPassword(auth, email, senha)
@@ -104,6 +105,7 @@ export default function App() {
         // Signed in 
         const user = userCredential.user;
         alert(user.email)
+        setUser(user);
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -114,6 +116,16 @@ export default function App() {
 
         // ..
       });
+  }
+
+  async function deslogar() {
+    await signOut(auth).then(() => {
+      alert('Usuário deslogado!')
+      return;
+    }).catch((error) => {
+      alert('Ops, algo deu errado!')
+      return;
+    });
   }
 
   return (
@@ -163,6 +175,7 @@ export default function App() {
               Cadastrar
             </Text>
           </Pressable>
+          <Text>Usuário: {user?.email}</Text>
           <Loading />
           <FlatList data={data} renderItem={({
             item
