@@ -12,12 +12,14 @@ import {
 } from "native-base";
 
 import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { child, getDatabase, onValue, push, ref, remove, set, update } from "firebase/database";
 
 import { firebase } from "./src/firebase/connection";
 
 import { Loading } from "./src/components/Loading";
 
 const auth = getAuth(firebase);
+const database = getDatabase(firebase);
 
 // Define the config
 const config = {
@@ -34,12 +36,23 @@ export default function App() {
   const [user, setUser] = useState(null);
   const [nome, setNome] = useState('');
 
+  async function novoUser(uid, novoNome) {
+    const newUserRef = child(ref(database, 'usuarios/'), uid);
+    //console.log(newUserRef.key);
+    await set(newUserRef, {
+      nome: novoNome
+    });
+  }
+
   async function cadastrar() {
     await createUserWithEmailAndPassword(auth, email, senha)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
-        console.log(user);
+        const uid = user.uid;
+
+        novoUser(uid, nome)
+        alert("Usuário Cadastrado com sucesso!")
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -68,6 +81,9 @@ export default function App() {
         const user = userCredential.user;
         alert(user.email)
         setUser(user);
+        setNome('');
+        setEmail('');
+        setSenha('');
       })
       .catch((error) => {
         const errorCode = error.code;
@@ -78,6 +94,7 @@ export default function App() {
 
         // ..
       });
+
   }
 
   async function deslogar() {
@@ -101,12 +118,23 @@ export default function App() {
         <VStack space={3} alignItems="center">
           <Heading size="lg">Cadastro Usuários</Heading>
           <FormControl w="90%" maxW="300px">
+            <FormControl.Label>Nome</FormControl.Label>
+            <Input
+              variant="rounded"
+              placeholder="Nome"
+              borderColor="coolGray.600"
+              onChangeText={(texto) => setNome(texto)}
+              value={nome}
+            />
+          </FormControl>
+          <FormControl w="90%" maxW="300px">
             <FormControl.Label>Email</FormControl.Label>
             <Input
               variant="rounded"
               placeholder="Email"
               borderColor="coolGray.600"
               onChangeText={(texto) => setEmail(texto)}
+              value={email}
             />
           </FormControl>
           <FormControl w="90%" maxW="300px">
@@ -117,10 +145,11 @@ export default function App() {
               placeholder="Senha"
               borderColor="coolGray.600"
               onChangeText={(texto) => setSenha(texto)}
+              value={senha}
             />
           </FormControl>
           <Pressable
-            onPress={logar}
+            onPress={cadastrar}
             rounded="8"
             overflow="hidden"
             borderWidth="1"
