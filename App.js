@@ -17,7 +17,7 @@ import {
   FlatList,
 } from "native-base";
 
-import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 import { firebase } from "./src/firebase/connection";
 
@@ -71,8 +71,8 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
 
-  function cadastrar() {
-    createUserWithEmailAndPassword(auth, email, senha)
+  async function cadastrar() {
+    await createUserWithEmailAndPassword(auth, email, senha)
       .then((userCredential) => {
         // Signed in 
         const user = userCredential.user;
@@ -94,6 +94,24 @@ export default function App() {
           alert('Ops, algo deu errado!')
           return;
         }
+        // ..
+      });
+  }
+
+  async function logar() {
+    await signInWithEmailAndPassword(auth, email, senha)
+      .then((userCredential) => {
+        // Signed in 
+        const user = userCredential.user;
+        alert(user.email)
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+
+        alert('Ops, algo deu errado!')
+        return;
+
         // ..
       });
   }
@@ -128,7 +146,7 @@ export default function App() {
             />
           </FormControl>
           <Pressable
-            onPress={cadastrar}
+            onPress={logar}
             rounded="8"
             overflow="hidden"
             borderWidth="1"
