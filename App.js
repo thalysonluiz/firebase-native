@@ -81,6 +81,19 @@ export default function App() {
       .catch((error) => {
         const errorCode = error.code;
         const errorMessage = error.message;
+
+        if (errorCode === 'auth/weak-password') {
+          alert('Senha menor que 6 caracteres')
+          return;
+        }
+        if (errorCode === 'auth/invalid-email') {
+          alert('Email Inválido')
+          return;
+        }
+        else {
+          alert('Ops, algo deu errado!')
+          return;
+        }
         // ..
       });
   }
