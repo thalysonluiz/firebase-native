@@ -11,7 +11,7 @@ import {
   Pressable,
 } from "native-base";
 
-import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, getAuth, signInWithEmailAndPassword, updateProfile } from "firebase/auth";
 import { child, getDatabase, onValue, push, ref, remove, set, update } from "firebase/database";
 
 import { firebase } from "./src/firebase/connection";
@@ -50,6 +50,7 @@ export default function App() {
         // Signed in 
         const user = userCredential.user;
         const uid = user.uid;
+        setUser(user);
 
         novoUser(uid, nome)
         alert("Usuário Cadastrado com sucesso!")
@@ -72,6 +73,21 @@ export default function App() {
         }
         // ..
       });
+
+    await updateProfile(auth.currentUser, {
+      displayName: nome,
+      //photoURL: "https://example.com/jane-q-user/profile.jpg"
+    }).then(() => {
+      // Profile updated!
+
+    }).catch((error) => {
+      console.log(error);
+    });
+
+    //console.log(user)
+    setNome('');
+    setEmail('');
+    setSenha('');
   }
 
   async function logar() {
@@ -81,6 +97,7 @@ export default function App() {
         const user = userCredential.user;
         alert(user.email)
         setUser(user);
+        console.log(user)
         setNome('');
         setEmail('');
         setSenha('');
@@ -99,6 +116,7 @@ export default function App() {
 
   async function deslogar() {
     await signOut(auth).then(() => {
+      setUser(null);
       alert('Usuário deslogado!')
       return;
     }).catch((error) => {
@@ -149,7 +167,7 @@ export default function App() {
             />
           </FormControl>
           <Pressable
-            onPress={cadastrar}
+            onPress={logar}
             rounded="8"
             overflow="hidden"
             borderWidth="1"
